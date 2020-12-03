@@ -1,62 +1,61 @@
 #include<iostream>
 #include<fstream>
 #include<string>
-#include<cstring>
+#include<vector>
+
 using namespace std;
-class Solution{
-public:
-int sum;
-    Solution(){
-        sum = 0;    
-    }
-    int satisfies(int lower, int upper, char c, char* s){
-        string str(s);
-
-        /** Part 1
-        int count = 0;
-        for(auto x: str){
-            if(x-'a'==c-'a'){
-                count++;
-            }
-        }
-        if(count>=lower && count<=upper){
-            return 1;
-        }
-        **/
-
-        //Debug
-        //cout << count << " " << lower << " " << upper << " " << c << " " << str << endl;
-       
-        /* Part 2 */
-        int count = 0;
-        if(lower-1<str.size() && str[lower-1]==c){
-            count++;
-        }
-        if(upper-1<str.size() && str[upper-1]==c){
-            count++;
-        }
-        if(count==1){return 1;}
-        return 0;
-    }
-    void input(){
-        ifstream myfile("aoc-3-input.txt");
+void input(vector< vector<int> > &m, string fileName){
+    ifstream myFile(fileName);
+    while(myFile.is_open()){
         string line;
-    
-        while(myfile.is_open()){
-            while( getline(myfile,line)){
-                int lower, upper;
-                char c;
-                char s[50];
-                sscanf(line.c_str(), "%d-%d %c: %s", &lower, &upper, &c, s);
-                this->sum += satisfies(lower,upper,c,s);
+        while( getline(myFile,line) ){
+            
+            // row ; default 0
+            vector<int> temp(line.size(),0);
+            // populate row with 1
+            for(int i=0; i<line.size() ; i++){
+                if(line[i]=='#'){
+                    temp[i]=1;
+                }
             }
-        myfile.close();
+
+            // update
+            m.push_back(temp);
         }
+        myFile.close();
     }
-};
+}
+
+// right down
+int traverseXY(vector< vector<int> > m, int right, int down){
+    int x=0;
+    int y=0;
+    int count=0;
+    while(y<m.size()){
+        // reset x if overflow
+        if(x >= m[0].size()){x%=m[0].size();}
+        //count
+        if(m[y][x]==1){ count++;} 
+        
+        x+=right; y+=down;
+    }
+    return count;
+}
 int main(){
-    Solution sol;
-    sol.input();
-    cout << sol.sum << endl;
+    // map
+    vector< vector<int> > m; 
+    input(m, "aoc-3-input.txt");
+    vector< pair<int,int> > input = {
+        make_pair(1,1),
+        make_pair(3,1),
+        make_pair(5,1),
+        make_pair(7,1),
+        make_pair(1,2),
+    };
+    long long int prod = 1;
+    for(auto p : input){
+        prod*=traverseXY(m,p.first,p.second); 
+    }
+    cout << prod << endl;
     return 0;
 }
